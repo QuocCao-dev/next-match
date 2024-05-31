@@ -38,3 +38,7 @@ export function transformImageUrl(imageUrl?: string | null) {
     uploadIndex
   )}`;
 }
+
+export function createChatId(a: string, b: string) {
+  return a > b ? `${b}-${a}` : `${a}-${b}`;
+}

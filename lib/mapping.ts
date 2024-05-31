@@ -1,7 +1,9 @@
-import { MessageWithSenderRecipient } from "@/types";
+import { MessageDto, MessageWithSenderRecipient } from "@/types";
 import { formatShortDateTime } from "./util";
 
-export function mapMessagesToMessageDto(message: MessageWithSenderRecipient) {
+export function mapMessagesToMessageDto(
+  message: MessageWithSenderRecipient
+): any {
   return {
     id: message.id,
     text: message.text,
