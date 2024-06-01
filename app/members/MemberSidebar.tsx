@@ -1,5 +1,6 @@
 "use client";
 
+import PresenceDot from "@/components/PresenceDot";
 import { calcAge } from "@/lib/util";
 import {
   Button,
@@ -35,6 +36,9 @@ const MemberSidebar = ({ member, navLinks }: Props) => {
           <div className="flex">
             <div className="text-2xl">
               {member.name}, {calcAge(member.dateOfBirth)}
+            </div>
+            <div>
+              <PresenceDot member={member} />
             </div>
           </div>
 

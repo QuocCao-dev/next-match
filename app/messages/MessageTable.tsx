@@ -18,6 +18,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Key, useCallback, useState } from "react";
 import { AiFillDelete } from "react-icons/ai";
 import { deleteMessage } from "../actions/messageActions";
+import PresenceAvatar from "@/components/PresenceAvatar";
 
 type Props = {
   messages: MessageDto[];
@@ -75,12 +76,9 @@ const MessageTable = ({ messages }: Props) => {
         case "senderName":
           return (
             <div className={clsx("flex items-center gap-2 cursor-pointer")}>
-              <Avatar
-                alt="image of member"
-                src={
-                  (isOutbox ? item.recipientImage : item.senderImage) ??
-                  "/images/user.png"
-                }
+              <PresenceAvatar
+                userId={isOutbox ? item.recipientId : item.senderId}
+                src={isOutbox ? item.recipientImage : item.senderImage}
               />
               <span>{cellValue}</span>
             </div>

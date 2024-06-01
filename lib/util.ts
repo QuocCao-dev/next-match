@@ -1,4 +1,4 @@
-import { differenceInYears, format } from "date-fns";
+import { differenceInYears, format, formatDistanceToNow } from "date-fns";
 import { FieldValues, Path, UseFormSetError } from "react-hook-form";
 import { ZodIssue } from "zod";
 
@@ -8,6 +8,10 @@ export function calcAge(dob: Date) {
 
 export function formatShortDateTime(date: Date) {
   return format(date, "dd MMM yy h:mm:a");
+}
+
+export function timeAgo(data: string) {
+  return formatDistanceToNow(new Date(data), { addSuffix: true });
 }
 
 export function handleFormServerErrors<TFieldValues extends FieldValues>(
