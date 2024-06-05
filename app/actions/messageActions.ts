@@ -1,13 +1,12 @@
 "use server";
 
-import { MessageSchema, messageSchema } from "@/lib/schemas/messageSchema";
-import { ActionResult, MessageDto } from "@/types";
-import { Message } from "@prisma/client";
-import { getAuthUserId } from "./authActions";
-import { prisma } from "@/lib/prisma";
 import { mapMessagesToMessageDto } from "@/lib/mapping";
+import { prisma } from "@/lib/prisma";
 import { pusherServer } from "@/lib/pusher";
+import { MessageSchema, messageSchema } from "@/lib/schemas/messageSchema";
 import { createChatId } from "@/lib/util";
+import { ActionResult, MessageDto } from "@/types";
+import { getAuthUserId } from "./authActions";
 
 export async function createMessage(
   recipientUserId: string,
@@ -31,6 +30,11 @@ export async function createMessage(
 
     await pusherServer.trigger(
       createChatId(userId, recipientUserId),
+      "message:new",
+      messageDto
+    );
+    await pusherServer.trigger(
+      `private-${recipientUserId}`,
       "message:new",
       messageDto
     );
@@ -64,6 +68,8 @@ export async function getMessagesThread(recipientId: string) {
       select: messageSelect,
     });
 
+    let readCount = 0;
+
     if (messages.length > 0) {
       const readMessagesIds = messages
         .filter(
@@ -79,6 +85,8 @@ export async function getMessagesThread(recipientId: string) {
         data: { dateRead: new Date() },
       });
 
+      readCount = readMessagesIds.length;
+
       await pusherServer.trigger(
         createChatId(recipientId, userId),
         "messages:read",
@@ -86,7 +94,11 @@ export async function getMessagesThread(recipientId: string) {
       );
     }
 
-    return messages.map(mapMessagesToMessageDto) as MessageDto[];
+    const messagesToReturn = messages.map(
+      mapMessagesToMessageDto
+    ) as MessageDto[];
+
+    return { messages: messagesToReturn, readCount };
   } catch (error) {
     throw error;
   }
@@ -151,6 +163,24 @@ export async function deleteMessage(messageId: string, isOutbox: boolean) {
         },
       });
     }
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getUnreadMessageCount() {
+  try {
+    const userId = await getAuthUserId();
+
+    const count = await prisma.message.count({
+      where: {
+        recipientId: userId,
+        dateRead: null,
+        recipientDeleted: false,
+      },
+    });
+
+    return count;
   } catch (error) {
     throw error;
   }
