@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { calcAge } from "../util";
 
 export const registerSchema = z.object({
   name: z.string().min(3, {
@@ -8,6 +9,27 @@ export const registerSchema = z.object({
   password: z.string().min(6, {
     message: "Password must be at least 6 characters long",
   }),
+});
+
+export const profileSchema = z.object({
+  gender: z.string().min(1),
+  description: z.string().min(1),
+  city: z.string().min(1),
+  country: z.string().min(1),
+  dateOfBirth: z
+    .string()
+    .min(1, {
+      message: "Date of birth is required",
+    })
+    .refine(
+      (dateString) => {
+        const age = calcAge(new Date(dateString));
+        return age >= 18;
+      },
+      {
+        message: "You must be at least 18 years old",
+      }
+    ),
 });
 
 export type RegisterSchema = z.infer<typeof registerSchema>;

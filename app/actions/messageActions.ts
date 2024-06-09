@@ -7,6 +7,7 @@ import { MessageSchema, messageSchema } from "@/lib/schemas/messageSchema";
 import { createChatId } from "@/lib/util";
 import { ActionResult, MessageDto } from "@/types";
 import { getAuthUserId } from "./authActions";
+import { Prisma } from "@prisma/client";
 
 export async function createMessage(
   recipientUserId: string,
@@ -104,11 +105,15 @@ export async function getMessagesThread(recipientId: string) {
   }
 }
 
-export async function getMessagesByContainer(container: string) {
+export async function getMessagesByContainer(
+  container?: string | null,
+  cursor?: string,
+  limit = 5
+) {
   try {
     const userId = await getAuthUserId();
 
-    const conditions = {
+    const conditions: Prisma.MessageWhereInput = {
       [container === "outbox" ? "senderId" : "recipientId"]: userId,
       ...(container === "outbox"
         ? { senderDeleted: false }
@@ -116,11 +121,29 @@ export async function getMessagesByContainer(container: string) {
     };
 
     const messages = await prisma.message.findMany({
-      where: conditions,
+      where: {
+        ...conditions,
+        ...(cursor && { created: { lt: new Date(cursor) } }),
+      },
       orderBy: { created: "desc" },
       select: messageSelect,
+      take: limit + 1,
     });
-    return messages.map(mapMessagesToMessageDto) as MessageDto[];
+
+    let nextCursor: string | undefined;
+
+    if (messages.length > limit) {
+      const nextItem = messages.pop();
+      nextCursor = nextItem?.created.toISOString();
+    } else {
+      nextCursor = undefined;
+    }
+
+    const messagesToReturn: MessageDto[] = messages.map(
+      mapMessagesToMessageDto
+    );
+
+    return { messages: messagesToReturn, nextCursor };
   } catch (error) {
     throw error;
   }
