@@ -12,6 +12,7 @@ async function seedMembers() {
         emailVerified: new Date(),
         name: member.name,
         passwordHash: await hash("password", 10),
+        profileComplete: true,
         member: {
           create: {
             dateOfBirth: new Date(member.dateOfBirth),

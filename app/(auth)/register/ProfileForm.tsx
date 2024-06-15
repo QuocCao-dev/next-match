@@ -65,6 +65,14 @@ const ProfileForm = () => {
         isInvalid={!!errors.city}
         errorMessage={errors.city?.message as string}
       />
+      <Input
+        defaultValue={getValues("country")}
+        label="Country"
+        variant="bordered"
+        {...register("country")}
+        isInvalid={!!errors.country}
+        errorMessage={errors.country?.message as string}
+      />
     </div>
   );
 };

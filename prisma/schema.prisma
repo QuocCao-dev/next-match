@@ -34,14 +34,15 @@ model Account {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
-  passwordHash  String    @map("password_hash")
-  image         String?
-  accounts      Account[]
-  member        Member?
+  id              String    @id @default(cuid())
+  name            String?
+  email           String?   @unique
+  emailVerified   DateTime? @map("email_verified")
+  passwordHash    String    @map("password_hash")
+  image           String?
+  accounts        Account[]
+  member          Member?
+  profileComplete Boolean   @default(false) @map("profile_complete")
 
   @@map("users")
 }
@@ -105,4 +106,19 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verificationtokens")
+}
+
+model Token {
+  id      String    @id @default(cuid())
+  email   String
+  token   String
+  expires DateTime
+  type    TokenType
+
+  @@unique([email, token])
+}
+
+enum TokenType {
+  VERIFICATION
+  PASSWORD_RESET
 }

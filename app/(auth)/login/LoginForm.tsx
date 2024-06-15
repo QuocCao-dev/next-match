@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { LoginSchema, loginSchema } from "@/lib/schemas/loginSchema";
 import { singInUser } from "@/app/actions/authActions";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -71,6 +72,9 @@ export default function LoginForm() {
             >
               Login
             </Button>
+            <div className="flex justify-center hover:underline text-sm">
+              <Link href="/forget-password">Forget password</Link>
+            </div>
           </div>
         </form>
       </CardBody>
